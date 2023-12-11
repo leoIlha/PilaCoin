@@ -63,13 +63,15 @@ public class TransferenciaController {
     @PostMapping("/transferir")
     public void transferirPila(@RequestBody TransferenciaPila transferenciaPila) {
         transferenciaPila.setDataTransacao(new Date(System.currentTimeMillis()));
+        transferenciaPila.setNomeUsuarioOrigem("joao_leo");
+        Chaves chaves = new Chaves();
+        transferenciaPila.setChaveUsuarioOrigem(chaves.getPublicKey().getEncoded());
+
         ObjectMapper om = new ObjectMapper();
 
         String json = om.writeValueAsString(transferenciaPila);
 
         Funcoes funcoes = new Funcoes();
-
-        transferenciaPila.setNomeUsuarioOrigem("joao_leo");
 
         transferenciaPila.setAssinatura(funcoes.geraAssinatura(json));
 
@@ -80,44 +82,4 @@ public class TransferenciaController {
         logController.setLogsMensagens("Tranferindo o pila...\n" + om.writeValueAsString(transferenciaPila));
         this.pilaCoinRepository.deleteByNonce(transferenciaPila.getNoncePila());
     }
-
-
-//    @SneakyThrows
-//    public void tranferirPilaBase(/*byte[] chaveOrigem, byte[] chaveDestino, String nomeOrigem, String nomeDestino, String nonce*/) {
-//
-//        Optional<PilaCoinJson> optionalPilaCoinJson = pilaCoinRepository.findById(216L);
-//        Optional<Usuario> optionalUsuario = usuarioRepository.findById(17L);
-//
-//        // Verifica se o objeto está presente no Optional
-//        if (optionalPilaCoinJson.isPresent() && optionalUsuario.isPresent()) {
-//            PilaCoinJson pila = optionalPilaCoinJson.get();
-//            Usuario usuario = optionalUsuario.get();
-//
-//            System.out.println("Iniciando transferencia do pila: " + pila.getId() + "\nPara o usuário: " + usuario.getNome());
-//
-//            TransferenciaPila transferenciaPila = TransferenciaPila.builder().
-//                    chaveUsuarioOrigem(pila.getChaveCriador()).
-//                    chaveUsuarioDestino(usuario.getChavePublica()).
-//                    nomeUsuarioOrigem(pila.getNomeCriador()).
-//                    nomeUsuarioDestino(usuario.getNome()).
-//                    noncePila(pila.getNonce()).
-//                    dataTransacao(new Date(System.currentTimeMillis())).
-//                    build();
-//            ObjectMapper om = new ObjectMapper();
-//
-//            String json = om.writeValueAsString(transferenciaPila);
-//
-//            Funcoes funcoes = new Funcoes();
-//
-//            transferenciaPila.setAssinatura(funcoes.geraAssinatura(json));
-//
-//            System.out.println("Tranferindo o pila...");
-//
-//            System.out.println(om.writeValueAsString(transferenciaPila));
-//            requisicoesService.enviarRequisicao("transferir-pila", om.writeValueAsString(transferenciaPila));
-//        } else {
-//            System.out.println("Pila ou usuário não encontrado!");
-//        }
-//
-//    }
 }
